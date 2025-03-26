@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background: linear-gradient(120deg, #ff9a9e, #fad0c4);
+    background: linear-gradient(120deg, #c58fe7, #94287d);
     color: #333;
     margin: 0;
     padding: 0;
@@ -35,4 +35,58 @@ nav ul li {
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 5px;
+}
+
+/* 图片瀑布流布局 */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.gallery img {
+    width: 200px;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.gallery img:hover {
+    transform: scale(1.1);
+}
+
+/* 放大图片 Lightbox */
+#lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 视频播放器 */
+.video-container {
+    margin: 20px auto;
+    max-width: 560px;
+}
+
+video {
+    width: 100%;
+    border-radius: 8px;
 }

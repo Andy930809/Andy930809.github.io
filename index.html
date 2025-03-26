@@ -6,37 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人网站</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
 </head>
 
 <body>
+
     <header>
         <h1>欢迎来到我的个人网站！</h1>
         <nav>
             <ul>
-                <li><a href="index.html">主页</a></li>
-                <li><a href="videos.html">视频</a></li>
-                <li><a href="gallery.html">图片</a></li>
+                <li><a href="#about">关于我</a></li>
+                <li><a href="#video-section">视频</a></li>
+                <li><a href="#gallery-section">图片</a></li>
             </ul>
         </nav>
     </header>
 
-    <section class="intro">
+    <!-- 个人介绍 -->
+    <section id="about" class="section">
+        <h2>关于我</h2>
         <img src="images/profile.jpg" alt="个人头像">
-        <h2>你好，我是 zkt
-        </h2>
-        <p>这里是我的个人网站，分享我的项目、视频和生活记录。</p>
+        <p>你好，我是 XXX，这里是我的个人网站，分享我的项目、视频和生活记录。</p>
     </section>
 
+    <!-- 视频预览 -->
+    <section id="video-section" class="section">
+        <h2>🎬 最新视频</h2>
+        <div class="video-preview">
+            <iframe src="https://www.youtube.com/embed/your-video-id" allowfullscreen></iframe>
+        </div>
+        <div class="video-preview">
+            <iframe src="https://player.bilibili.com/player.html?aid=your-aid" allowfullscreen></iframe>
+        </div>
+        <a href="videos.html" class="btn">查看所有视频</a>
+    </section>
+
+    <!-- 图片展示 -->
+    <section id="gallery-section" class="section">
+        <h2>📸 图片展示</h2>
+        <div class="gallery">
+            <img src="images/photo1.jpg" alt="图片1">
+            <img src="images/photo2.jpg" alt="图片2">
+            <img src="images/photo3.jpg" alt="图片3">
+        </div>
+        <a href="gallery.html" class="btn">查看更多图片</a>
+    </section>
+
+    <!-- 社交媒体 -->
     <section class="social-links">
         <h3>关注我：</h3>
         <a href="https://github.com/yourprofile" target="_blank">GitHub</a>
         <a href="https://bilibili.com/yourprofile" target="_blank">Bilibili</a>
-        <a href="https://twitter.com/yourprofile" target="_blank">Twitter</a>
     </section>
 
     <footer>
         <p>© 2025 你的名字</p>
     </footer>
+
 </body>
 
 </html>

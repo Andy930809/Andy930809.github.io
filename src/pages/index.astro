@@ -13,37 +13,141 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
+    <!-- 1. Hero 区域：超大标题 -->
+    <div class="hero-section">
+        <h1>Hello, I'm <span class="text-gradient">Andy</span>.</h1>
+        <p class="bio">
+            一名热衷于创造的开发者。<br>
+            这里是我的数字花园，记录技术、生活与思考。
+        </p>
+    </div>
+
+    <!-- 2. Bento Grid 区域：卡片导航 -->
+    <div class="bento-grid">
+        <!-- 卡片 1: 博客文章 -->
+        <a href="/blog" class="card blog-card">
+            <span class="icon">✍️</span>
+            <h3>阅读博客</h3>
+            <p>浏览我的技术笔记与随笔</p>
+        </a>
+
+        <!-- 卡片 2: 关于我 -->
+        <a href="/about" class="card about-card">
+            <span class="icon">🧑‍💻</span>
+            <h3>关于我</h3>
+            <p>了解更多我的背景与技能</p>
+        </a>
+
+        <!-- 卡片 3: GitHub -->
+        <a href="https://github.com/Andy930809" target="_blank" class="card github-card">
+            <span class="icon">📦</span>
+            <h3>GitHub</h3>
+            <p>看看我的开源代码仓库</p>
+        </a>
+
+        <!-- 卡片 4: 占位/其他链接 -->
+        <a href="mailto:你的邮箱@example.com" class="card contact-card">
+            <span class="icon">📬</span>
+            <h3>联系我</h3>
+            <p>发送邮件进行交流</p>
+        </a>
+    </div>
+</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+    /* 1. Hero 区域样式 */
+    .hero-section {
+        margin-bottom: 4rem; /* 这里的间距大一点，显得大气 */
+        text-align: left;    /* 保持左对齐，像 Landon 的网站一样 */
+    }
+
+    h1 {
+        font-size: 3.5rem;   /* 字号要大！ */
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .text-gradient {
+        /* 给名字加个漂亮的渐变色 */
+        background-image: linear-gradient(45deg, var(--accent), #da62c4 30%, white 60%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 400%;
+        background-position: 0%;
+    }
+
+    .bio {
+        font-size: 1.2rem;
+        color: #888; /* 灰色字显得高级 */
+        line-height: 1.6;
+    }
+
+    /* 2. Bento Grid 网格布局 */
+    .bento-grid {
+        display: grid;
+        /* 手机上一列，电脑上两列 */
+        grid-template-columns: 1fr; 
+        gap: 1.5rem;
+    }
+    
+    /* 电脑屏幕适配 */
+    @media (min-width: 768px) {
+        .bento-grid {
+            grid-template-columns: 1fr 1fr; /* 变成两列 */
+        }
+    }
+
+    /* 3. 卡片通用样式 */
+    .card {
+        background: #f5f5f5; /* 浅灰底色，如果是深色模式可以改成 #1a1a1a */
+        padding: 2rem;
+        border-radius: 16px; /* 圆角要大 */
+        text-decoration: none;
+        transition: all 0.3s ease; /* 动画过渡 */
+        border: 1px solid transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* 深色模式适配 (如果你的 global.css 有深色模式支持) */
+    @media (prefers-color-scheme: dark) {
+        .card {
+            background: #1e1e1e;
+            color: #fff;
+        }
+        .bio { color: #bbb; }
+    }
+
+    /* 卡片悬停效果 - 关键的“酷炫”感来源 */
+    .card:hover {
+        transform: translateY(-5px); /* 向上浮动 */
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.15); /* 增加阴影 */
+        border-color: rgb(var(--accent)); /* 边框变色 */
+    }
+
+    .icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .card h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #333;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .card h3 { color: #fff; }
+    }
+
+    .card p {
+        margin-top: 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>

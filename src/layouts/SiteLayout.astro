@@ -1,0 +1,83 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { CONTACT_LINKS, getSiteCopy } from '../i18n/copy';
+import { LANG_LABELS, type SiteLang, SUPPORTED_LANGS, createLocalizedPath, switchLanguagePath } from '../i18n/config';
+
+interface Props {
+	lang: SiteLang;
+	title: string;
+	description: string;
+	pathname: string;
+}
+
+const { lang, title, description, pathname } = Astro.props;
+const copy = getSiteCopy(lang);
+
+const navItems = [
+	{ id: 'home', label: copy.nav.home, href: createLocalizedPath(lang, '/') },
+	{ id: 'projects', label: copy.nav.projects, href: `${createLocalizedPath(lang, '/')}#projects` },
+	{ id: 'blog', label: copy.nav.blog, href: createLocalizedPath(lang, '/blog') },
+	{ id: 'about', label: copy.nav.about, href: createLocalizedPath(lang, '/about') },
+	{ id: 'contact', label: copy.nav.contact, href: '#site-contact' },
+];
+
+const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
+	code: targetLang,
+	label: LANG_LABELS[targetLang],
+	href: switchLanguagePath(pathname, targetLang),
+	active: targetLang === lang,
+}));
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<BaseHead title={title} description={description} />
+		{
+			languageLinks.map((item) => (
+				<link rel="alternate" hreflang={item.code} href={new URL(item.href, Astro.site)} />
+			))
+		}
+	</head>
+	<body>
+		<div class="ambient-layer"></div>
+		<header class="site-header">
+			<div class="header-wrap">
+				<a class="brand" href={createLocalizedPath(lang, '/')}>
+					<span class="brand-name">ChangKT</span>
+					<span class="brand-subtitle">{copy.heroSubtitle}</span>
+				</a>
+				<nav class="top-nav">
+					{navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+				</nav>
+				<div class="language-switcher" aria-label="Language Switcher">
+					{
+						languageLinks.map((item) => (
+							<a href={item.href} class:list={{ active: item.active }}>
+								{item.label}
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</header>
+
+		<main>
+			<slot />
+		</main>
+
+		<footer class="site-footer" id="site-contact">
+			<div class="footer-wrap">
+				<div>
+					<p class="footer-title">{copy.sections.contact}</p>
+					<a href={CONTACT_LINKS.email}>changkt930809@gmail.com</a>
+				</div>
+				<div class="footer-links">
+					<a href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+					<a href={CONTACT_LINKS.bilibili} target="_blank" rel="noopener noreferrer">Bilibili</a>
+				</div>
+			</div>
+			<p class="copyright">© {new Date().getFullYear()} ChangKT</p>
+		</footer>
+	</body>
+</html>

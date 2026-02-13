@@ -1,0 +1,102 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { getSiteCopy } from '../../../i18n/copy';
+import { SUPPORTED_LANGS, createLocalizedPath, formatDateByLang, type SiteLang } from '../../../i18n/config';
+import { getLocalizedPostDescription, getLocalizedPostTitle, getSortedPosts } from '../../../lib/blog';
+
+export async function getStaticPaths() {
+	return SUPPORTED_LANGS.map((lang) => ({
+		params: { lang },
+	}));
+}
+
+const lang = Astro.params.lang as SiteLang;
+const copy = getSiteCopy(lang);
+const posts = await getSortedPosts();
+---
+
+<SiteLayout lang={lang} title={copy.blog.title} description={copy.blog.intro} pathname={Astro.url.pathname}>
+	<section class="blog-page">
+		<div class="blog-head surface-card">
+			<p class="section-kicker">Journal</p>
+			<h1 class="section-title">{copy.blog.title}</h1>
+			<p>{copy.blog.intro}</p>
+			<div class="chip-list">
+				{copy.blog.categories.map((category) => <span>{category}</span>)}
+			</div>
+		</div>
+
+		{
+			posts.length === 0 ? (
+				<p>{copy.blog.empty}</p>
+			) : (
+				<div class="blog-list">
+					{posts.map((post) => (
+						<a class="surface-card blog-item" href={createLocalizedPath(lang, `/blog/${post.id}`)}>
+							<p class="blog-date">{formatDateByLang(post.data.pubDate, lang)}</p>
+							<h2>{getLocalizedPostTitle(post, lang)}</h2>
+							<p>{getLocalizedPostDescription(post, lang)}</p>
+							<span>{copy.blog.readMore}</span>
+						</a>
+					))}
+				</div>
+			)
+		}
+	</section>
+</SiteLayout>
+
+<style>
+	.blog-page {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.blog-head {
+		display: grid;
+		gap: 0.9rem;
+		padding: 1.25rem;
+	}
+
+	.blog-head p {
+		color: var(--text-subtle);
+	}
+
+	.blog-list {
+		display: grid;
+		gap: 0.9rem;
+	}
+
+	.blog-item {
+		padding: 1.15rem;
+		display: grid;
+		gap: 0.62rem;
+		transition:
+			transform var(--duration-fast) ease,
+			border-color var(--duration-fast) ease;
+	}
+
+	.blog-item:hover {
+		transform: translateY(-3px);
+		border-color: var(--accent);
+	}
+
+	.blog-date {
+		font-size: 0.78rem;
+		color: var(--text-subtle);
+		text-transform: uppercase;
+	}
+
+	.blog-item h2 {
+		font-size: clamp(1.25rem, 2.6vw, 1.8rem);
+	}
+
+	.blog-item p {
+		color: var(--text-subtle);
+	}
+
+	.blog-item span {
+		color: var(--accent);
+		font-weight: 700;
+		font-size: 0.9rem;
+	}
+</style>

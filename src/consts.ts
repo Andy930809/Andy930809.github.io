@@ -1,5 +1,3 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
-
-export const SITE_TITLE = 'Zkt的主页';
-export const SITE_DESCRIPTION = '一个KT的技术或者生活随笔';
+export const SITE_TITLE = 'ChangKT Personal Homepage';
+export const SITE_DESCRIPTION =
+	'A personal homepage focused on frontend design, build logs, and project demos.';

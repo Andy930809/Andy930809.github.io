@@ -1,0 +1,73 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { render } from 'astro:content';
+import { getSiteCopy } from '../../../i18n/copy';
+import { SUPPORTED_LANGS, createLocalizedPath, formatDateByLang, type SiteLang } from '../../../i18n/config';
+import { getLocalizedPostDescription, getLocalizedPostTitle, getSortedPosts } from '../../../lib/blog';
+
+export async function getStaticPaths() {
+	const posts = await getSortedPosts();
+	return SUPPORTED_LANGS.flatMap((lang) =>
+		posts.map((post) => ({
+			params: { lang, slug: post.id },
+			props: { post, lang },
+		})),
+	);
+}
+
+const { post, lang } = Astro.props;
+const typedLang = lang as SiteLang;
+const copy = getSiteCopy(typedLang);
+const { Content } = await render(post);
+---
+
+<SiteLayout
+	lang={typedLang}
+	title={getLocalizedPostTitle(post, typedLang)}
+	description={getLocalizedPostDescription(post, typedLang)}
+	pathname={Astro.url.pathname}
+>
+	<article class="post-page">
+		<a class="back-link" href={createLocalizedPath(typedLang, '/blog')}>{copy.nav.blog}</a>
+		<header class="post-header surface-card">
+			<p class="post-meta">{formatDateByLang(post.data.pubDate, typedLang)}</p>
+			<h1 class="section-title">{getLocalizedPostTitle(post, typedLang)}</h1>
+			<p>{getLocalizedPostDescription(post, typedLang)}</p>
+		</header>
+		<section class="post-content surface-card">
+			<Content />
+		</section>
+	</article>
+</SiteLayout>
+
+<style>
+	.post-page {
+		display: grid;
+		gap: 0.95rem;
+	}
+
+	.back-link {
+		font-size: 0.86rem;
+		font-weight: 700;
+		color: var(--accent);
+	}
+
+	.post-header {
+		padding: 1.2rem;
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.post-header p {
+		color: var(--text-subtle);
+	}
+
+	.post-meta {
+		font-size: 0.8rem;
+		text-transform: uppercase;
+	}
+
+	.post-content {
+		padding: 1.2rem;
+	}
+</style>

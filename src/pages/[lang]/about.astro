@@ -14,21 +14,21 @@ const copy = getSiteCopy(lang);
 ---
 
 <SiteLayout lang={lang} title={copy.about.title} description={copy.siteDescription} pathname={Astro.url.pathname}>
-	<section class="about-page">
-		<div class="about-main surface-card">
-			<p class="section-kicker">Profile</p>
-			<h1 class="section-title">{copy.about.title}</h1>
+	<section class="about-page panel">
+		<div class="about-main">
+			<p class="section-kicker">{copy.sections.about}</p>
+			<h1>{copy.about.title}</h1>
 			<p>{copy.about.intro}</p>
 			<p>{copy.about.detail}</p>
-			<div class="contact-group">
-				<a href={CONTACT_LINKS.email}>changkt930809@gmail.com</a>
-				<a href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-				<a href={CONTACT_LINKS.bilibili} target="_blank" rel="noopener noreferrer">Bilibili</a>
+			<div class="about-links">
+				<a class="inline-link" href={CONTACT_LINKS.email}>Email</a>
+				<a class="inline-link" href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+				<a class="inline-link" href={CONTACT_LINKS.bilibili} target="_blank" rel="noopener noreferrer">Bilibili</a>
 			</div>
 		</div>
-		<aside class="about-side surface-card">
-			<p class="section-kicker">Skills</p>
-			<h2>{copy.about.skillsTitle}</h2>
+
+		<aside class="about-side">
+			<p class="section-kicker">{copy.about.skillsTitle}</p>
 			<div class="chip-list">
 				{copy.about.skills.map((skill) => <span>{skill}</span>)}
 			</div>
@@ -38,40 +38,32 @@ const copy = getSiteCopy(lang);
 
 <style>
 	.about-page {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 1rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 2rem;
+		flex-wrap: wrap;
 	}
 
 	.about-main,
 	.about-side {
-		padding: 1.3rem;
+		flex: 1 1 320px;
 		display: grid;
-		gap: 0.9rem;
-	}
-
-	.about-main p {
-		color: var(--text-subtle);
-	}
-
-	.contact-group {
-		display: flex;
-		flex-wrap: wrap;
 		gap: 0.8rem;
 	}
 
-	.contact-group a {
-		font-weight: 700;
-		color: var(--accent);
+	.about-page h1 {
+		font-size: clamp(2.2rem, 5vw, 4rem);
 	}
 
-	.about-side h2 {
-		font-size: 1.45rem;
+	.about-page p {
+		max-width: 60ch;
+		color: var(--text-subtle);
 	}
 
-	@media (max-width: 900px) {
-		.about-page {
-			grid-template-columns: 1fr;
-		}
+	.about-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
 	}
 </style>

@@ -12,13 +12,13 @@ interface Props {
 
 const { lang, title, description, pathname } = Astro.props;
 const copy = getSiteCopy(lang);
+const normalizedPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
 
 const navItems = [
-	{ id: 'home', label: copy.nav.home, href: createLocalizedPath(lang, '/') },
-	{ id: 'projects', label: copy.nav.projects, href: `${createLocalizedPath(lang, '/')}#projects` },
-	{ id: 'blog', label: copy.nav.blog, href: createLocalizedPath(lang, '/blog') },
-	{ id: 'about', label: copy.nav.about, href: createLocalizedPath(lang, '/about') },
-	{ id: 'contact', label: copy.nav.contact, href: '#site-contact' },
+	{ label: copy.nav.home, href: createLocalizedPath(lang, '/'), active: normalizedPath === createLocalizedPath(lang, '/') },
+	{ label: copy.nav.projects, href: `${createLocalizedPath(lang, '/')}#projects`, active: normalizedPath === createLocalizedPath(lang, '/') },
+	{ label: copy.nav.blog, href: createLocalizedPath(lang, '/blog'), active: normalizedPath.startsWith(createLocalizedPath(lang, '/blog')) },
+	{ label: copy.nav.about, href: createLocalizedPath(lang, '/about'), active: normalizedPath.startsWith(createLocalizedPath(lang, '/about')) },
 ];
 
 const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
@@ -40,15 +40,20 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 		}
 	</head>
 	<body>
-		<div class="ambient-layer"></div>
 		<header class="site-header">
 			<div class="header-wrap">
 				<a class="brand" href={createLocalizedPath(lang, '/')}>
 					<span class="brand-name">ChangKT</span>
-					<span class="brand-subtitle">{copy.heroSubtitle}</span>
+					<span class="brand-subtitle">{copy.siteDescription}</span>
 				</a>
 				<nav class="top-nav">
-					{navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+					{
+						navItems.map((item) => (
+							<a href={item.href} class:list={{ active: item.active }}>
+								{item.label}
+							</a>
+						))
+					}
 				</nav>
 				<div class="language-switcher" aria-label="Language Switcher">
 					{
@@ -68,11 +73,12 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 
 		<footer class="site-footer" id="site-contact">
 			<div class="footer-wrap">
-				<div>
-					<p class="footer-title">{copy.sections.contact}</p>
-					<a href={CONTACT_LINKS.email}>changkt930809@gmail.com</a>
+				<div class="footer-copy">
+					<p class="footer-title">{copy.siteName}</p>
+					<p>{copy.siteDescription}</p>
 				</div>
 				<div class="footer-links">
+					<a href={CONTACT_LINKS.email}>Email</a>
 					<a href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
 					<a href={CONTACT_LINKS.bilibili} target="_blank" rel="noopener noreferrer">Bilibili</a>
 				</div>

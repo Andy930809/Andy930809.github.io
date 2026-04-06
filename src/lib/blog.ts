@@ -9,12 +9,6 @@ export async function getSortedPosts(): Promise<BlogPost[]> {
 	return posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 }
 
-export function getFeaturedPosts(posts: BlogPost[], count: number): BlogPost[] {
-	const featured = posts.filter((post) => post.data.featured);
-	const source = featured.length >= count ? featured : posts;
-	return source.slice(0, count);
-}
-
 export function getLocalizedPostTitle(post: BlogPost, lang: SiteLang): string {
 	if (lang === 'zh-tw' && post.data.titleZhTw) {
 		return post.data.titleZhTw;

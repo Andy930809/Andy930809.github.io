@@ -2,7 +2,7 @@
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { CONTACT_LINKS, getSiteCopy } from '../../i18n/copy';
 import { SUPPORTED_LANGS, createLocalizedPath, formatDateByLang, type SiteLang } from '../../i18n/config';
-import { getFeaturedPosts, getLocalizedPostDescription, getLocalizedPostTitle, getSortedPosts } from '../../lib/blog';
+import { getLocalizedPostTitle, getSortedPosts } from '../../lib/blog';
 
 export async function getStaticPaths() {
 	return SUPPORTED_LANGS.map((lang) => ({
@@ -13,270 +13,223 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as SiteLang;
 const copy = getSiteCopy(lang);
 const posts = await getSortedPosts();
-const featuredPosts = getFeaturedPosts(posts, 3);
+const latestPost = posts[0];
+const leadProject = copy.projects[0];
+const supportingProjects = copy.projects.slice(1);
+
+const labels: Record<SiteLang, { project: string; post: string; route: string }> = {
+	'zh-cn': { project: '当前项目', post: '最新文章', route: '语言路由' },
+	'zh-tw': { project: '目前項目', post: '最新文章', route: '語言路由' },
+	en: { project: 'Current Project', post: 'Latest Post', route: 'Routes' },
+};
 ---
 
 <SiteLayout lang={lang} title={copy.siteName} description={copy.siteDescription} pathname={Astro.url.pathname}>
-	<section class="hero">
-		<p class="section-kicker">Personal Homepage</p>
-		<h1>{copy.heroTitle}</h1>
-		<p class="hero-subtitle">{copy.heroSubtitle}</p>
-		<p class="hero-body">{copy.heroBody}</p>
-		<div class="hero-actions">
-			<a class="action-primary" href={createLocalizedPath(lang, '/about')}>{copy.nav.about}</a>
-			<a class="action-secondary" href={createLocalizedPath(lang, '/blog')}>{copy.nav.blog}</a>
+	<section class="home-hero">
+		<div class="hero-main">
+			<p class="section-kicker">{copy.siteName}</p>
+			<h1>{copy.heroTitle}</h1>
+			<p class="hero-subtitle">{copy.heroSubtitle}</p>
+			<p class="hero-body">{copy.heroBody}</p>
+			<div class="hero-actions">
+				<a class="button" href={leadProject.link} target="_blank" rel="noopener noreferrer">GitHub</a>
+				<a class="button-secondary" href={createLocalizedPath(lang, '/blog')}>{copy.nav.blog}</a>
+			</div>
 		</div>
-	</section>
 
-	<section class="projects" id="projects">
-		<div class="section-head">
-			<p class="section-kicker">Work</p>
-			<h2 class="section-title">{copy.sections.projects}</h2>
-		</div>
-		<div class="project-grid">
-			{
-				copy.projects.map((item) => (
-					<article class="surface-card project-card">
-						<div class="project-stack">
-							{item.stack.map((tag) => (
-								<span>{tag}</span>
-							))}
-						</div>
-						<h3>{item.title}</h3>
-						<p>{item.summary}</p>
-						<p class="project-result">{item.result}</p>
-						<a href={item.link} target="_blank" rel="noopener noreferrer">
-							Open Link
+		<div class="hero-meta">
+			<div class="meta-row">
+				<span class="meta-label">{labels[lang].project}</span>
+				<strong>{leadProject.title}</strong>
+			</div>
+			<div class="meta-row">
+				<span class="meta-label">{labels[lang].post}</span>
+				{
+					latestPost ? (
+						<a class="inline-link" href={createLocalizedPath(lang, `/blog/${latestPost.id}`)}>
+							{getLocalizedPostTitle(latestPost, lang)}
 						</a>
-					</article>
-				))
-			}
+					) : (
+						<span>{copy.blog.empty}</span>
+					)
+				}
+			</div>
+			<div class="meta-row">
+				<span class="meta-label">{labels[lang].route}</span>
+				<strong>{SUPPORTED_LANGS.length}</strong>
+			</div>
 		</div>
 	</section>
 
-	<section class="featured-posts">
+	<section class="home-section panel" id="projects">
 		<div class="section-head">
-			<p class="section-kicker">Writing</p>
-			<h2 class="section-title">{copy.sections.featuredPosts}</h2>
+			<p class="section-kicker">{copy.nav.projects}</p>
+			<h2>{copy.sections.projects}</h2>
 		</div>
-		<div class="post-grid">
-			{
-				featuredPosts.map((post) => (
-					<a class="surface-card post-card" href={createLocalizedPath(lang, `/blog/${post.id}`)}>
-						<p class="post-date">{formatDateByLang(post.data.pubDate, lang)}</p>
-						<h3>{getLocalizedPostTitle(post, lang)}</h3>
-						<p>{getLocalizedPostDescription(post, lang)}</p>
-					</a>
-				))
-			}
+
+		<div class="project-layout">
+			<div class="project-main">
+				<h3>{leadProject.title}</h3>
+				<p>{leadProject.summary}</p>
+				<p class="project-result">{leadProject.result}</p>
+				<div class="chip-list">
+					{leadProject.stack.map((tag) => <span>{tag}</span>)}
+				</div>
+			</div>
+
+			<div class="project-list">
+				{
+					supportingProjects.map((project) => (
+						<article class="project-item">
+							<h4>{project.title}</h4>
+							<p>{project.summary}</p>
+							<p>{project.result}</p>
+						</article>
+					))
+				}
+			</div>
 		</div>
 	</section>
 
-	<section class="about-teaser surface-card">
-		<p class="section-kicker">Profile</p>
-		<h2 class="section-title">{copy.sections.about}</h2>
-		<p>{copy.about.intro}</p>
-		<p>{copy.about.detail}</p>
-		<div class="teaser-actions">
-			<a class="action-primary" href={createLocalizedPath(lang, '/about')}>{copy.nav.about}</a>
-			<a class="action-secondary" href={CONTACT_LINKS.email}>
-				{copy.nav.contact}
-			</a>
+	<section class="home-section panel">
+		<div class="section-head">
+			<p class="section-kicker">{copy.nav.blog}</p>
+			<h2>{copy.sections.featuredPosts}</h2>
+		</div>
+
+		{
+			latestPost ? (
+				<a class="writing-row" href={createLocalizedPath(lang, `/blog/${latestPost.id}`)}>
+					<div>
+						<p class="meta-date">{formatDateByLang(latestPost.data.pubDate, lang)}</p>
+						<h3>{getLocalizedPostTitle(latestPost, lang)}</h3>
+					</div>
+					<span class="inline-link">{copy.blog.readMore}</span>
+				</a>
+			) : (
+				<p>{copy.blog.empty}</p>
+			)
+		}
+	</section>
+
+	<section class="home-section panel home-about">
+		<div>
+			<p class="section-kicker">{copy.sections.about}</p>
+			<h2>{copy.about.title}</h2>
+			<p>{copy.about.intro}</p>
+			<p>{copy.about.detail}</p>
+		</div>
+		<div class="about-side">
+			<div class="chip-list">
+				{copy.about.skills.map((skill) => <span>{skill}</span>)}
+			</div>
+			<div class="hero-actions">
+				<a class="button" href={CONTACT_LINKS.email}>{copy.nav.contact}</a>
+				<a class="button-secondary" href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+			</div>
 		</div>
 	</section>
 </SiteLayout>
 
 <style>
-	.hero {
+	.home-hero {
 		display: grid;
-		gap: 1rem;
-		padding: clamp(2.2rem, 4vw, 3.6rem);
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--line);
-		background:
-			linear-gradient(120deg, color-mix(in srgb, var(--accent-soft) 80%, transparent), transparent 55%),
-			var(--surface);
-		box-shadow: var(--shadow);
-		animation: rise-in var(--duration-slow) ease both;
+		grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+		gap: 2rem;
+		padding: 1rem 0 4rem;
 	}
 
-	.hero h1 {
-		font-size: clamp(2.4rem, 5vw, 4.4rem);
-		max-width: 16ch;
+	.hero-main,
+	.hero-meta {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.hero-main h1 {
+		font-size: clamp(2.6rem, 6vw, 5rem);
+		max-width: 11ch;
 	}
 
 	.hero-subtitle {
-		font-size: clamp(1.02rem, 1.9vw, 1.4rem);
+		font-size: 1.06rem;
+		font-weight: 500;
+		color: var(--text-strong);
+	}
+
+	.hero-body,
+	.project-main p,
+	.project-item p,
+	.home-about p {
+		max-width: 60ch;
 		color: var(--text-subtle);
 	}
 
-	.hero-body {
-		max-width: 68ch;
-		color: var(--text-subtle);
-	}
-
-	.hero-actions {
+	.hero-actions,
+	.project-layout,
+	.writing-row,
+	.home-about {
 		display: flex;
 		gap: 0.75rem;
 		flex-wrap: wrap;
 	}
 
-	.action-primary,
-	.action-secondary {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0.62rem 1rem;
-		border-radius: 999px;
-		font-size: 0.88rem;
-		font-weight: 700;
-		transition: transform var(--duration-fast) ease;
+	.hero-meta {
+		align-content: start;
+		padding-top: 0.25rem;
 	}
 
-	.action-primary {
-		background: var(--accent);
-		color: #fff;
-	}
-
-	.action-secondary {
-		background: transparent;
-		border: 1px solid var(--line);
-		color: var(--text);
-	}
-
-	.action-primary:hover,
-	.action-secondary:hover {
-		transform: translateY(-2px);
-	}
-
-	.projects,
-	.featured-posts {
-		margin-top: clamp(2.4rem, 4vw, 4rem);
-	}
-
-	.section-head {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 1rem;
-	}
-
-	.project-grid {
+	.meta-row,
+	.project-item {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.35rem;
+		padding: 1rem 0;
+		border-top: 1px solid var(--line);
+	}
+
+	.writing-row {
+		padding: 1rem 0;
+		border-top: 1px solid var(--line);
+	}
+
+	.project-layout,
+	.home-about {
+		justify-content: space-between;
+		align-items: flex-start;
+	}
+
+	.project-main,
+	.project-list,
+	.about-side {
+		flex: 1 1 320px;
+		display: grid;
 		gap: 1rem;
-	}
-
-	.project-card {
-		padding: 1.2rem;
-		display: grid;
-		gap: 0.8rem;
-	}
-
-	.project-stack {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.45rem;
-	}
-
-	.project-stack span {
-		font-size: 0.72rem;
-		font-weight: 700;
-		padding: 0.26rem 0.56rem;
-		border-radius: 999px;
-		background: var(--accent-soft);
-	}
-
-	.project-card h3 {
-		font-size: 1.4rem;
-	}
-
-	.project-card p {
-		color: var(--text-subtle);
 	}
 
 	.project-result {
-		font-weight: 600;
-		color: var(--text);
+		color: var(--text-strong);
+		font-weight: 500;
 	}
 
-	.project-card a {
-		font-weight: 700;
-		color: var(--accent);
+	.writing-row {
+		align-items: center;
+		justify-content: space-between;
 	}
 
-	.post-grid {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 1rem;
+	.writing-row h3,
+	.project-main h3 {
+		font-size: clamp(1.45rem, 2.8vw, 2.2rem);
 	}
 
-	.post-card {
-		padding: 1.1rem;
-		display: grid;
-		gap: 0.6rem;
-		transition:
-			transform var(--duration-fast) ease,
-			border-color var(--duration-fast) ease;
-	}
-
-	.post-card:hover {
-		transform: translateY(-3px);
-		border-color: var(--accent);
-	}
-
-	.post-date {
-		font-size: 0.78rem;
-		text-transform: uppercase;
-		color: var(--text-subtle);
-	}
-
-	.post-card h3 {
-		font-size: 1.22rem;
-	}
-
-	.post-card p {
-		color: var(--text-subtle);
-	}
-
-	.about-teaser {
-		margin-top: clamp(2.6rem, 4vw, 4rem);
-		padding: 1.3rem;
-		display: grid;
-		gap: 0.9rem;
-	}
-
-	.about-teaser p {
-		color: var(--text-subtle);
-	}
-
-	.teaser-actions {
-		display: flex;
-		gap: 0.7rem;
-		flex-wrap: wrap;
-	}
-
-	@media (max-width: 980px) {
-		.project-grid,
-		.post-grid {
-			grid-template-columns: 1fr 1fr;
-		}
-	}
-
-	@media (max-width: 680px) {
-		.project-grid,
-		.post-grid {
+	@media (max-width: 860px) {
+		.home-hero {
 			grid-template-columns: 1fr;
+			padding-bottom: 3rem;
 		}
-	}
 
-	@keyframes rise-in {
-		from {
-			opacity: 0;
-			transform: translateY(18px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
+		.writing-row,
+		.home-about,
+		.project-layout {
+			flex-direction: column;
 		}
 	}
 </style>

@@ -27,14 +27,12 @@ const { Content } = await render(post);
 	description={getLocalizedPostDescription(post, typedLang)}
 	pathname={Astro.url.pathname}
 >
-	<article class="post-page">
-		<a class="back-link" href={createLocalizedPath(typedLang, '/blog')}>{copy.nav.blog}</a>
-		<header class="post-header surface-card">
-			<p class="post-meta">{formatDateByLang(post.data.pubDate, typedLang)}</p>
-			<h1 class="section-title">{getLocalizedPostTitle(post, typedLang)}</h1>
-			<p>{getLocalizedPostDescription(post, typedLang)}</p>
-		</header>
-		<section class="post-content surface-card">
+	<article class="post-page panel">
+		<a class="inline-link" href={createLocalizedPath(typedLang, '/blog')}>{copy.nav.blog}</a>
+		<p class="meta-date">{formatDateByLang(post.data.pubDate, typedLang)}</p>
+		<h1>{getLocalizedPostTitle(post, typedLang)}</h1>
+		<p class="post-intro">{getLocalizedPostDescription(post, typedLang)}</p>
+		<section class="post-content">
 			<Content />
 		</section>
 	</article>
@@ -43,31 +41,16 @@ const { Content } = await render(post);
 <style>
 	.post-page {
 		display: grid;
-		gap: 0.95rem;
+		gap: 0.9rem;
+		max-width: 84ch;
 	}
 
-	.back-link {
-		font-size: 0.86rem;
-		font-weight: 700;
-		color: var(--accent);
+	.post-page h1 {
+		font-size: clamp(2.3rem, 5vw, 4rem);
 	}
 
-	.post-header {
-		padding: 1.2rem;
-		display: grid;
-		gap: 0.7rem;
-	}
-
-	.post-header p {
+	.post-intro {
+		max-width: 60ch;
 		color: var(--text-subtle);
-	}
-
-	.post-meta {
-		font-size: 0.8rem;
-		text-transform: uppercase;
-	}
-
-	.post-content {
-		padding: 1.2rem;
 	}
 </style>

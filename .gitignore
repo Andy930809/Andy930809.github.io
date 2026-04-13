@@ -26,3 +26,7 @@ pnpm-debug.log*
 temp-front
 
 .serena/
+
+# local skill workflow files
+.agents/
+skills/

@@ -1,0 +1,177 @@
+---
+interface Props {
+	headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth <= 3);
+---
+
+<nav class="toc-container" aria-label="Table of Contents">
+	<div class="toc-sticky">
+		<p class="toc-title">ON THIS PAGE</p>
+		<div class="toc-wrapper">
+			<div class="toc-progress-track">
+				<div id="toc-progress-bar" class="toc-progress-bar"></div>
+			</div>
+			<ul class="toc-list">
+				{
+					filteredHeadings.map((heading) => (
+						<li class:list={['toc-item', `depth-${heading.depth}`]}>
+							<a href={`#${heading.slug}`} data-slug={heading.slug}>{heading.text}</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<script>
+	function setupTOC() {
+		const progressBar = document.getElementById('toc-progress-bar');
+		const tocList = document.querySelector('.toc-list');
+		const tocLinks = document.querySelectorAll('.toc-item a');
+		const headers = document.querySelectorAll('.post-content h2, .post-content h3');
+		if (!progressBar || !tocList || headers.length === 0) return;
+
+		const setActiveLink = (id: string | null) => {
+			if (!id) return;
+			const activeLink = document.querySelector(`.toc-item a[data-slug="${id}"]`);
+			if (activeLink) {
+				tocLinks.forEach((link) => link.classList.remove('active'));
+				activeLink.classList.add('active');
+				
+				const linkRect = activeLink.getBoundingClientRect();
+				const listRect = tocList.getBoundingClientRect();
+				const relativeTop = linkRect.top - listRect.top;
+				progressBar.style.transform = `translateY(${relativeTop}px)`;
+				progressBar.style.height = `${linkRect.height}px`;
+			}
+		};
+
+		const observerOptions = {
+			rootMargin: '-20px 0px -80% 0px',
+			threshold: [0, 1],
+		};
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					setActiveLink(entry.target.getAttribute('id'));
+				}
+			});
+		}, observerOptions);
+
+		headers.forEach((h) => observer.observe(h));
+
+		const handleScroll = () => {
+			const scrollHeight = document.documentElement.scrollHeight;
+			const scrollTop = window.scrollY;
+			const clientHeight = window.innerHeight;
+			
+			// If at the very bottom, highlight the last header
+			if (scrollTop + clientHeight >= scrollHeight - 20) {
+				const lastHeaderId = headers[headers.length - 1]?.getAttribute('id');
+				if (lastHeaderId) setActiveLink(lastHeaderId);
+			}
+			
+			const scrolled = scrollTop / (scrollHeight - clientHeight);
+			progressBar.style.opacity = scrolled > 0.02 ? '1' : '0.3';
+		};
+
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		handleScroll();
+	}
+
+	document.addEventListener('astro:page-load', setupTOC);
+</script>
+
+<style>
+	.toc-container {
+		height: 100%;
+		padding-top: 1rem; /* Adjust padding to match header-relative offset */
+	}
+
+	.toc-sticky {
+		position: sticky;
+		top: calc(1rem + 68px); /* 68px is the estimated height of the sticky header */
+		display: grid;
+		gap: 1.2rem;
+	}
+
+	.toc-title {
+		font-size: 0.72rem;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		color: var(--text-subtle);
+		text-transform: uppercase;
+	}
+
+	.toc-wrapper {
+		position: relative;
+		display: flex;
+		gap: 0;
+	}
+
+	.toc-progress-track {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: var(--line);
+		border-radius: 99px;
+	}
+
+	.toc-progress-bar {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 2px;
+		height: 20px;
+		background: var(--accent);
+		border-radius: 99px;
+		transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), height 0.3s ease;
+		box-shadow: 0 0 8px var(--accent);
+		z-index: 2;
+	}
+
+	.toc-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: grid;
+		gap: 0.85rem;
+		padding-left: 1.5rem;
+	}
+
+	.toc-item a {
+		font-size: 0.88rem;
+		color: var(--text-subtle);
+		transition: color var(--duration-fast) ease, transform var(--duration-fast) ease;
+		display: block;
+		line-height: 1.4;
+		text-decoration: none;
+	}
+
+	.toc-item.depth-3 {
+		padding-left: 1.2rem;
+	}
+
+	.toc-item a:hover {
+		color: var(--text-strong);
+	}
+
+	.toc-item a.active {
+		color: var(--accent);
+		font-weight: 650;
+		transform: translateX(4px);
+	}
+
+	@media (max-width: 1280px) {
+		.toc-container {
+			display: none;
+		}
+	}
+</style>

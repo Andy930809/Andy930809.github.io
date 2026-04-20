@@ -3,15 +3,30 @@
 	--surface: #ffffff;
 	--surface-soft: #fafaf9;
 	--text: #1a1a1a;
-	--text-strong: #37352f;
-	--text-subtle: #9b9a97;
-	--line: #e0e0e0;
-	--line-strong: #d2d2d2;
+	--text-strong: #111111;
+	--text-subtle: #737373;
+	--line: #e5e5e5;
+	--line-strong: #d4d4d4;
+	--accent: #2f4b9e;
+	--accent-soft: #edf2ff;
 	--radius-lg: 24px;
 	--radius-md: 16px;
 	--container: min(1120px, calc(100vw - 3rem));
-	--measure: 72ch;
-	--duration-fast: 180ms;
+	--measure: 68ch;
+	--duration-fast: 200ms;
+}
+
+[data-theme='dark'] {
+	--bg: #0a0a0a;
+	--surface: #141414;
+	--surface-soft: #1c1c1c;
+	--text: #d4d4d4;
+	--text-strong: #ffffff;
+	--text-subtle: #a3a3a3;
+	--line: #262626;
+	--line-strong: #404040;
+	--accent: #7c9fff;
+	--accent-soft: rgba(124, 159, 255, 0.1);
 }
 
 *,
@@ -22,7 +37,9 @@
 
 html {
 	background: var(--bg);
+	color: var(--text);
 	scroll-behavior: smooth;
+	/* Removed background-color transition to prevent flashing during theme swap and page load */
 }
 
 body {
@@ -31,7 +48,7 @@ body {
 	background: var(--bg);
 	color: var(--text);
 	font-family: 'Inter', 'Helvetica Neue', 'SF Pro Display', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-	line-height: 1.7;
+	line-height: 1.65;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 }
@@ -80,9 +97,14 @@ img {
 	position: sticky;
 	top: 0;
 	z-index: 20;
-	background: rgba(255, 255, 255, 0.92);
-	backdrop-filter: blur(14px);
-	border-bottom: 1px solid rgba(224, 224, 224, 0.9);
+	background: var(--bg);
+	border-bottom: 1px solid var(--line);
+	/* Remove hardcoded rgba white */
+}
+
+[data-theme='dark'] .site-header {
+	background: var(--bg);
+	border-bottom-color: var(--line);
 }
 
 .header-wrap {
@@ -167,18 +189,18 @@ img {
 
 .button {
 	background: var(--text);
-	color: #ffffff;
+	color: var(--bg);
 }
 
-.button-secondary {
-	background: var(--surface);
-	border-color: var(--line);
-	color: var(--text);
+[data-theme='dark'] .button {
+	background: var(--accent);
+	color: #000000;
+	box-shadow: 0 4px 14px rgba(124, 159, 255, 0.25);
 }
 
-.button:hover,
-.button-secondary:hover {
-	transform: translateY(-1px);
+.button:hover {
+	transform: translateY(-2px);
+	filter: brightness(1.1);
 }
 
 .button-secondary:hover {

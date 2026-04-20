@@ -1,0 +1,257 @@
+---
+interface Props {
+	levels: { label: string; items: string[]; color: string }[];
+}
+
+const { levels } = Astro.props;
+
+// 优化后的位置算法：增加半径偏移以防重叠
+function getPosition(levelIndex: number, itemIndex: number, totalItems: number) {
+	const radiusBase = [85, 165, 240]; 
+	// 奇偶索引交错偏移半径，增加灵动感并减少文字重合
+	const jitter = (itemIndex % 2 === 0 ? 12 : -12);
+	const radius = radiusBase[levelIndex] + jitter;
+	
+	const offsetAngle = levelIndex * 40; 
+	const angle = offsetAngle + (360 / totalItems) * itemIndex;
+	
+	return {
+		'--radius': `${radius}px`,
+		'--angle': `${angle}deg`,
+	};
+}
+---
+
+<div class="radar-container" data-radar>
+	<div class="radar-background">
+		<!-- 带有微妙渐变的轨道 -->
+		<div class="ring ring-1"><div class="ring-label">ADOPT</div></div>
+		<div class="ring ring-2"><div class="ring-label">TRIAL</div></div>
+		<div class="ring ring-3"><div class="ring-label">ASSESS</div></div>
+		
+		<!-- 装饰性网格线 -->
+		<div class="axis axis-v"></div>
+		<div class="axis axis-h"></div>
+		<div class="axis axis-d1"></div>
+		<div class="axis axis-d2"></div>
+		
+		<!-- 扫描光束 -->
+		<div class="scanner"></div>
+	</div>
+
+	<div class="radar-blips">
+		{
+			levels.map((level, lIdx) => 
+				level.items.map((item, iIdx) => (
+					<div 
+						class="blip-wrapper" 
+						style={getPosition(lIdx, iIdx, level.items.length)}
+						data-level={lIdx}
+					>
+						<div class="blip-core" style={`--dot-color: ${level.color}`}>
+							<div class="pulse"></div>
+							<div class="dot"></div>
+						</div>
+						<div class="blip-label">{item}</div>
+					</div>
+				))
+			)
+		}
+	</div>
+</div>
+
+<style>
+	.radar-container {
+		position: relative;
+		width: 560px;
+		height: 560px;
+		margin: 3rem auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform-origin: center;
+		transition: opacity 0.5s ease;
+	}
+
+	@media (max-width: 640px) {
+		.radar-container {
+			transform: scale(0.6);
+			margin: -6rem auto;
+		}
+	}
+
+	.radar-background {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* 轨道环样式：增加深度感 */
+	.ring {
+		position: absolute;
+		border: 1px solid var(--line);
+		border-radius: 50%;
+		transition: all 0.5s ease;
+		display: flex;
+		justify-content: center;
+		pointer-events: none;
+	}
+
+	.ring-1 { 
+		width: 170px; height: 170px; 
+		background: radial-gradient(circle, var(--accent-soft) 0%, transparent 80%);
+		opacity: 0.6;
+		border-style: solid;
+	}
+	.ring-2 { width: 330px; height: 330px; border-style: dashed; opacity: 0.45; }
+	.ring-3 { width: 480px; height: 480px; border-style: dotted; opacity: 0.35; }
+
+	.ring-label {
+		font-size: 0.7rem;
+		font-weight: 900;
+		color: var(--text-subtle);
+		letter-spacing: 0.2em;
+		transform: translateY(-10px);
+		background: var(--bg);
+		padding: 0 10px;
+		transition: all 0.4s ease;
+	}
+
+	/* 标签层级配色：强调核心层 */
+	.ring-1 .ring-label {
+		color: var(--accent);
+		font-size: 0.8rem;
+		letter-spacing: 0.25em;
+		text-shadow: 0 0 12px var(--accent-soft);
+	}
+	.ring-2 .ring-label {
+		color: var(--text-strong);
+		opacity: 0.9;
+	}
+	.ring-3 .ring-label {
+		color: var(--text-subtle);
+		opacity: 0.6;
+		font-weight: 600;
+	}
+
+	[data-theme='dark'] .ring-label {
+		background: var(--bg); /* Ensure background matches the dark mode bg */
+	}
+
+	/* 放射性轴线：加深 */
+	.axis {
+		position: absolute;
+		background: var(--line-strong);
+		opacity: 0.25;
+		pointer-events: none;
+	}
+	.axis-v { width: 1px; height: 100%; }
+	.axis-h { width: 100%; height: 1px; }
+	.axis-d1 { width: 1px; height: 100%; transform: rotate(45deg); }
+	.axis-d2 { width: 1px; height: 100%; transform: rotate(-45deg); }
+
+	/* 扫描动画：更柔和的尾迹 */
+	.scanner {
+		position: absolute;
+		width: 50%;
+		height: 50%;
+		top: 0;
+		right: 0;
+		background: conic-gradient(from 90deg at 0% 100%, var(--accent-soft) 0%, transparent 40%);
+		transform-origin: bottom left;
+		animation: scan 10s linear infinite;
+		opacity: 0.4;
+		pointer-events: none;
+	}
+
+	@keyframes scan {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	/* 极坐标映射逻辑 */
+	.blip-wrapper {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(-1 * var(--angle)));
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+		z-index: 10;
+	}
+
+	.blip-wrapper:hover {
+		z-index: 100;
+		transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(-1 * var(--angle))) scale(1.15);
+	}
+
+	/* 动态 Blip 点设计 */
+	.blip-core {
+		position: relative;
+		width: 10px;
+		height: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--dot-color);
+	}
+
+	.dot {
+		width: 100%;
+		height: 100%;
+		background: currentColor;
+		border-radius: 50%;
+		box-shadow: 0 0 10px currentColor;
+		z-index: 2;
+	}
+
+	.pulse {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background: currentColor;
+		border-radius: 50%;
+		opacity: 0.6;
+		animation: pulse 2.5s infinite;
+		z-index: 1;
+	}
+
+	@keyframes pulse {
+		0% { transform: scale(1); opacity: 0.6; }
+		100% { transform: scale(3.5); opacity: 0; }
+	}
+
+	/* 磨砂玻璃标签设计 */
+	.blip-label {
+		font-size: 0.84rem;
+		font-weight: 600;
+		color: var(--text-strong);
+		padding: 5px 12px;
+		background: rgba(var(--surface-rgb, 255, 255, 255), 0.75);
+		backdrop-filter: blur(10px);
+		border: 1px solid var(--line);
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+		white-space: nowrap;
+		transition: all 0.3s ease;
+	}
+
+	[data-theme='dark'] .blip-label {
+		background: rgba(20, 20, 20, 0.7);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.blip-wrapper:hover .blip-label {
+		border-color: var(--accent);
+		color: var(--accent);
+		background: var(--bg);
+	}
+
+	/* 不同层级的标签样式区分 */
+	[data-level="0"] .blip-label { font-weight: 700; border-color: var(--line-strong); }
+	[data-level="2"] .blip-label { opacity: 0.85; font-size: 0.78rem; }
+</style>

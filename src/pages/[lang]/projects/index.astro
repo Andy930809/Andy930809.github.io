@@ -1,0 +1,72 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import ProjectCard from '../../../components/ProjectCard.astro';
+import { getSiteCopy } from '../../../i18n/copy';
+import { SUPPORTED_LANGS, type SiteLang } from '../../../i18n/config';
+
+export async function getStaticPaths() {
+	return SUPPORTED_LANGS.map((lang) => ({
+		params: { lang },
+	}));
+}
+
+const lang = Astro.params.lang as SiteLang;
+const copy = getSiteCopy(lang);
+const projects = copy.projects;
+---
+
+<SiteLayout lang={lang} title={`${copy.nav.projects} - ${copy.siteName}`} description={copy.projectBoard.intro} pathname={Astro.url.pathname}>
+	<section class="projects-hero">
+		<p class="section-kicker">{copy.nav.projects}</p>
+		<h1>{copy.sections.projects}</h1>
+		<p class="section-summary">{copy.projectBoard.intro}</p>
+	</section>
+
+	<section class="projects-grid">
+		{
+			projects.map((project) => (
+				<ProjectCard 
+					project={project} 
+					lang={lang} 
+					statusCopy={copy.projectBoard.status}
+					labels={{
+						sourceLabel: copy.projectBoard.sourceLabel,
+						highlightsLabel: copy.projectBoard.highlightsLabel,
+						openSourceLabel: copy.projectBoard.openSourceLabel,
+						draftHint: copy.projectBoard.draftHint
+					}}
+				/>
+			))
+		}
+	</section>
+</SiteLayout>
+
+<style>
+	.projects-hero {
+		display: grid;
+		gap: 0.8rem;
+		margin-bottom: 3rem;
+	}
+
+	.projects-hero h1 {
+		font-size: clamp(2.5rem, 5vw, 4rem);
+	}
+
+	.section-summary {
+		max-width: 65ch;
+		color: var(--text-subtle);
+		font-size: 1.1rem;
+	}
+
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+		gap: 1.5rem;
+	}
+
+	@media (max-width: 640px) {
+		.projects-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

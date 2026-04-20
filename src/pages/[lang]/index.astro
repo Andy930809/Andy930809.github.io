@@ -1,7 +1,8 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
 import { CONTACT_LINKS, getSiteCopy } from '../../i18n/copy';
-import { SUPPORTED_LANGS, createLocalizedPath, formatDateByLang, type SiteLang } from '../../i18n/config';
+import { createLocalizedPath, formatDateByLang, SUPPORTED_LANGS, type SiteLang } from '../../i18n/config';
 import { getLocalizedPostTitle, getSortedPosts } from '../../lib/blog';
 
 export async function getStaticPaths() {
@@ -14,13 +15,18 @@ const lang = Astro.params.lang as SiteLang;
 const copy = getSiteCopy(lang);
 const posts = await getSortedPosts();
 const latestPost = posts[0];
-const leadProject = copy.projects[0];
-const supportingProjects = copy.projects.slice(1);
 
-const labels: Record<SiteLang, { project: string; post: string; route: string }> = {
-	'zh-cn': { project: '当前项目', post: '最新文章', route: '语言路由' },
-	'zh-tw': { project: '目前項目', post: '最新文章', route: '語言路由' },
-	en: { project: 'Current Project', post: 'Latest Post', route: 'Routes' },
+if (copy.projects.length === 0) {
+	throw new Error(`No projects configured for ${lang}.`);
+}
+
+const publishedProjects = copy.projects.filter((project) => project.status === 'published');
+const featuredProject = publishedProjects[0] ?? copy.projects[0];
+
+const projectMetrics = {
+	total: copy.projects.length,
+	published: publishedProjects.length,
+	draft: copy.projects.length - publishedProjects.length,
 };
 ---
 
@@ -32,18 +38,26 @@ const labels: Record<SiteLang, { project: string; post: string; route: string }>
 			<p class="hero-subtitle">{copy.heroSubtitle}</p>
 			<p class="hero-body">{copy.heroBody}</p>
 			<div class="hero-actions">
-				<a class="button" href={leadProject.link} target="_blank" rel="noopener noreferrer">GitHub</a>
+				<a class="button" href={createLocalizedPath(lang, '/projects')}>{copy.nav.projects}</a>
 				<a class="button-secondary" href={createLocalizedPath(lang, '/blog')}>{copy.nav.blog}</a>
 			</div>
 		</div>
 
 		<div class="hero-meta">
 			<div class="meta-row">
-				<span class="meta-label">{labels[lang].project}</span>
-				<strong>{leadProject.title}</strong>
+				<span class="meta-label">{copy.projectBoard.metrics.total}</span>
+				<strong>{projectMetrics.total}</strong>
 			</div>
 			<div class="meta-row">
-				<span class="meta-label">{labels[lang].post}</span>
+				<span class="meta-label">{copy.projectBoard.metrics.published}</span>
+				<strong>{projectMetrics.published}</strong>
+			</div>
+			<div class="meta-row">
+				<span class="meta-label">{copy.projectBoard.metrics.draft}</span>
+				<strong>{projectMetrics.draft}</strong>
+			</div>
+			<div class="meta-row">
+				<span class="meta-label">{copy.projectBoard.metrics.latestPost}</span>
 				{
 					latestPost ? (
 						<a class="inline-link" href={createLocalizedPath(lang, `/blog/${latestPost.id}`)}>
@@ -54,40 +68,33 @@ const labels: Record<SiteLang, { project: string; post: string; route: string }>
 					)
 				}
 			</div>
-			<div class="meta-row">
-				<span class="meta-label">{labels[lang].route}</span>
-				<strong>{SUPPORTED_LANGS.length}</strong>
-			</div>
 		</div>
 	</section>
 
 	<section class="home-section panel" id="projects">
-		<div class="section-head">
-			<p class="section-kicker">{copy.nav.projects}</p>
-			<h2>{copy.sections.projects}</h2>
+		<div class="section-head-with-link">
+			<div class="section-head">
+				<p class="section-kicker">{copy.projectBoard.featuredLabel}</p>
+				<h2>{featuredProject.title}</h2>
+			</div>
+			<a class="inline-link view-all" href={createLocalizedPath(lang, '/projects')}>
+				{copy.nav.projects} &rarr;
+			</a>
 		</div>
 
-		<div class="project-layout">
-			<div class="project-main">
-				<h3>{leadProject.title}</h3>
-				<p>{leadProject.summary}</p>
-				<p class="project-result">{leadProject.result}</p>
-				<div class="chip-list">
-					{leadProject.stack.map((tag) => <span>{tag}</span>)}
-				</div>
-			</div>
-
-			<div class="project-list">
-				{
-					supportingProjects.map((project) => (
-						<article class="project-item">
-							<h4>{project.title}</h4>
-							<p>{project.summary}</p>
-							<p>{project.result}</p>
-						</article>
-					))
-				}
-			</div>
+		<div class="featured-project-container">
+			<ProjectCard 
+				project={featuredProject} 
+				lang={lang} 
+				statusCopy={copy.projectBoard.status}
+				labels={{
+					sourceLabel: copy.projectBoard.sourceLabel,
+					highlightsLabel: copy.projectBoard.highlightsLabel,
+					openSourceLabel: copy.projectBoard.openSourceLabel,
+					draftHint: copy.projectBoard.draftHint
+				}}
+				isFeatured={true}
+			/>
 		</div>
 	</section>
 
@@ -134,9 +141,10 @@ const labels: Record<SiteLang, { project: string; post: string; route: string }>
 <style>
 	.home-hero {
 		display: grid;
-		grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-		gap: 2rem;
+		grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+		gap: 2.2rem;
 		padding: 1rem 0 4rem;
+		align-items: start;
 	}
 
 	.hero-main,
@@ -157,15 +165,12 @@ const labels: Record<SiteLang, { project: string; post: string; route: string }>
 	}
 
 	.hero-body,
-	.project-main p,
-	.project-item p,
 	.home-about p {
 		max-width: 60ch;
 		color: var(--text-subtle);
 	}
 
 	.hero-actions,
-	.project-layout,
 	.writing-row,
 	.home-about {
 		display: flex;
@@ -176,60 +181,75 @@ const labels: Record<SiteLang, { project: string; post: string; route: string }>
 	.hero-meta {
 		align-content: start;
 		padding-top: 0.25rem;
+		gap: 0;
 	}
 
-	.meta-row,
-	.project-item {
-		display: grid;
-		gap: 0.35rem;
-		padding: 1rem 0;
-		border-top: 1px solid var(--line);
-	}
-
-	.writing-row {
-		padding: 1rem 0;
-		border-top: 1px solid var(--line);
-	}
-
-	.project-layout,
-	.home-about {
+	.meta-row {
+		display: flex;
 		justify-content: space-between;
-		align-items: flex-start;
-	}
-
-	.project-main,
-	.project-list,
-	.about-side {
-		flex: 1 1 320px;
-		display: grid;
+		align-items: center;
 		gap: 1rem;
+		padding: 0.85rem 0;
+		border-top: 1px solid var(--line);
 	}
 
-	.project-result {
-		color: var(--text-strong);
-		font-weight: 500;
+	.section-head-with-link {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		margin-bottom: 2rem;
+		gap: 2rem;
+	}
+
+	.section-head {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.view-all {
+		font-size: 0.95rem;
+		margin-bottom: 0.2rem;
+	}
+
+	.featured-project-container {
+		max-width: 900px;
 	}
 
 	.writing-row {
+		padding: 1rem 0;
+		border-top: 1px solid var(--line);
 		align-items: center;
 		justify-content: space-between;
 	}
 
-	.writing-row h3,
-	.project-main h3 {
-		font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+	.writing-row h3 {
+		font-size: clamp(1.35rem, 2.4vw, 1.95rem);
 	}
 
-	@media (max-width: 860px) {
+	.about-side {
+		display: grid;
+		gap: 1.5rem;
+		align-content: start;
+	}
+
+	@media (max-width: 980px) {
 		.home-hero {
 			grid-template-columns: 1fr;
 			padding-bottom: 3rem;
 		}
+	}
 
+	@media (max-width: 860px) {
 		.writing-row,
 		.home-about,
-		.project-layout {
+		.hero-actions {
 			flex-direction: column;
+		}
+		
+		.section-head-with-link {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
 		}
 	}
 </style>

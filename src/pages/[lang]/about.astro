@@ -1,6 +1,7 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
-import { CONTACT_LINKS, getSiteCopy } from '../../i18n/copy';
+import TechRadar from '../../components/TechRadar.astro';
+import { getSiteCopy } from '../../i18n/copy';
 import { SUPPORTED_LANGS, type SiteLang } from '../../i18n/config';
 
 export async function getStaticPaths() {
@@ -11,59 +12,114 @@ export async function getStaticPaths() {
 
 const lang = Astro.params.lang as SiteLang;
 const copy = getSiteCopy(lang);
+
+// 技术雷达数据定义
+const radarData = [
+	{
+		label: 'Adopt',
+		items: ['Astro', 'TypeScript', 'Python', 'Tailwind', 'React'],
+		color: 'var(--accent)',
+	},
+	{
+		label: 'Trial',
+		items: ['Rust', 'MCP', 'LLM Agents', 'Go', 'Next.js'],
+		color: '#10b981',
+	},
+	{
+		label: 'Assess',
+		items: ['Zig', 'WebAssembly', 'Bun', 'Svelte'],
+		color: '#f59e0b',
+	},
+];
 ---
 
-<SiteLayout lang={lang} title={copy.about.title} description={copy.siteDescription} pathname={Astro.url.pathname}>
-	<section class="about-page panel">
-		<div class="about-main">
-			<p class="section-kicker">{copy.sections.about}</p>
-			<h1>{copy.about.title}</h1>
-			<p>{copy.about.intro}</p>
+<SiteLayout lang={lang} title={`${copy.sections.about} - ${copy.siteName}`} description={copy.about.intro} pathname={Astro.url.pathname}>
+	<section class="about-hero">
+		<p class="section-kicker">{copy.sections.about}</p>
+		<h1>{copy.about.title}</h1>
+		<p class="hero-intro">{copy.about.intro}</p>
+	</section>
+
+	<section class="about-content panel">
+		<div class="bio-main">
 			<p>{copy.about.detail}</p>
-			<div class="about-links">
-				<a class="inline-link" href={CONTACT_LINKS.email}>Email</a>
-				<a class="inline-link" href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-				<a class="inline-link" href={CONTACT_LINKS.bilibili} target="_blank" rel="noopener noreferrer">Bilibili</a>
+			
+			<div class="tech-radar-section">
+				<p class="section-kicker">{copy.about.skillsTitle}</p>
+				<TechRadar levels={radarData} />
 			</div>
 		</div>
 
-		<aside class="about-side">
-			<p class="section-kicker">{copy.about.skillsTitle}</p>
-			<div class="chip-list">
-				{copy.about.skills.map((skill) => <span>{skill}</span>)}
+		<div class="contact-card reveal">
+			<p class="card-title">{copy.sections.contact}</p>
+			<p>{copy.siteDescription}</p>
+			<div class="hero-actions">
+				<a class="button" href={copy.nav.contact}>Email Me</a>
 			</div>
-		</aside>
+		</div>
 	</section>
 </SiteLayout>
 
 <style>
-	.about-page {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		gap: 2rem;
-		flex-wrap: wrap;
-	}
-
-	.about-main,
-	.about-side {
-		flex: 1 1 320px;
+	.about-hero {
 		display: grid;
 		gap: 0.8rem;
+		margin-bottom: 3.5rem;
 	}
 
-	.about-page h1 {
-		font-size: clamp(2.2rem, 5vw, 4rem);
+	.about-hero h1 {
+		font-size: clamp(2.5rem, 5vw, 4.5rem);
 	}
 
-	.about-page p {
-		max-width: 60ch;
+	.hero-intro {
+		font-size: 1.25rem;
+		color: var(--text-strong);
+		max-width: 50ch;
+	}
+
+	.about-content {
+		display: grid;
+		grid-template-columns: 1fr 300px;
+		gap: 4rem;
+		align-items: start;
+	}
+
+	.bio-main {
+		display: grid;
+		gap: 2.5rem;
+	}
+
+	.bio-main p {
+		font-size: 1.1rem;
 		color: var(--text-subtle);
+		max-width: var(--measure);
 	}
 
-	.about-links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.8rem;
+	.tech-radar-section {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.contact-card {
+		padding: 2rem;
+		border-radius: var(--radius-md);
+		background: var(--surface-soft);
+		border: 1px solid var(--line);
+		display: grid;
+		gap: 1.2rem;
+	}
+
+	.card-title {
+		font-size: 0.84rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	@media (max-width: 900px) {
+		.about-content {
+			grid-template-columns: 1fr;
+			gap: 3rem;
+		}
 	}
 </style>

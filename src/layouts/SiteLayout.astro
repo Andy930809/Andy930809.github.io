@@ -1,5 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import { ClientRouter } from 'astro:transitions';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { CONTACT_LINKS, getSiteCopy } from '../i18n/copy';
 import { LANG_LABELS, type SiteLang, SUPPORTED_LANGS, createLocalizedPath, switchLanguagePath } from '../i18n/config';
 
@@ -16,7 +18,7 @@ const normalizedPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
 
 const navItems = [
 	{ label: copy.nav.home, href: createLocalizedPath(lang, '/'), active: normalizedPath === createLocalizedPath(lang, '/') },
-	{ label: copy.nav.projects, href: `${createLocalizedPath(lang, '/')}#projects`, active: normalizedPath === createLocalizedPath(lang, '/') },
+	{ label: copy.nav.projects, href: createLocalizedPath(lang, '/projects'), active: normalizedPath.startsWith(createLocalizedPath(lang, '/projects')) },
 	{ label: copy.nav.blog, href: createLocalizedPath(lang, '/blog'), active: normalizedPath.startsWith(createLocalizedPath(lang, '/blog')) },
 	{ label: copy.nav.about, href: createLocalizedPath(lang, '/about'), active: normalizedPath.startsWith(createLocalizedPath(lang, '/about')) },
 ];
@@ -33,6 +35,7 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 <html lang={lang}>
 	<head>
 		<BaseHead title={title} description={description} />
+		<ClientRouter />
 		{
 			languageLinks.map((item) => (
 				<link rel="alternate" hreflang={item.code} href={new URL(item.href, Astro.site)} />
@@ -46,32 +49,38 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 					<span class="brand-name">ChangKT</span>
 					<span class="brand-subtitle">{copy.siteDescription}</span>
 				</a>
-				<nav class="top-nav">
-					{
-						navItems.map((item) => (
-							<a href={item.href} class:list={{ active: item.active }}>
-								{item.label}
-							</a>
-						))
-					}
-				</nav>
-				<div class="language-switcher" aria-label="Language Switcher">
-					{
-						languageLinks.map((item) => (
-							<a href={item.href} class:list={{ active: item.active }}>
-								{item.label}
-							</a>
-						))
-					}
+				<div class="header-right">
+					<nav class="top-nav">
+						{
+							navItems.map((item) => (
+								<a href={item.href} class:list={{ active: item.active }}>
+									{item.label}
+								</a>
+							))
+						}
+					</nav>
+					<div class="header-actions">
+						<div class="language-switcher" aria-label="Language Switcher">
+							{
+								languageLinks.map((item) => (
+									<a href={item.href} class:list={{ active: item.active }}>
+										{item.label}
+									</a>
+								))
+							}
+						</div>
+						<div class="v-line"></div>
+						<ThemeToggle />
+					</div>
 				</div>
 			</div>
 		</header>
 
-		<main>
+		<main class="reveal-container">
 			<slot />
 		</main>
 
-		<footer class="site-footer" id="site-contact">
+		<footer class="site-footer reveal" id="site-contact">
 			<div class="footer-wrap">
 				<div class="footer-copy">
 					<p class="footer-title">{copy.siteName}</p>
@@ -85,5 +94,89 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 			</div>
 			<p class="copyright">© {new Date().getFullYear()} ChangKT</p>
 		</footer>
+
+		<style is:global>
+			.site-header {
+				position: sticky;
+				top: 0;
+				z-index: 50;
+				background: var(--bg);
+				border-bottom: 1px solid var(--line);
+				transition: background-color 0.4s ease, border-color 0.4s ease;
+			}
+
+			[data-theme='dark'] .site-header {
+				background: rgba(10, 10, 10, 0.8);
+				backdrop-filter: blur(12px);
+			}
+
+			.header-wrap {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 0.75rem 0;
+			}
+
+			.header-right {
+				display: flex;
+				align-items: center;
+				gap: 2.5rem;
+			}
+
+			.header-actions {
+				display: flex;
+				align-items: center;
+				gap: 1.25rem;
+			}
+
+			.v-line {
+				width: 1px;
+				height: 1.25rem;
+				background: var(--line);
+			}
+
+			.reveal {
+				opacity: 0;
+				transform: translateY(14px);
+				transition: opacity 0.7s cubic-bezier(0.215, 0.61, 0.355, 1), transform 0.7s cubic-bezier(0.215, 0.61, 0.355, 1);
+			}
+			.reveal.visible {
+				opacity: 1;
+				transform: translateY(0);
+			}
+
+			@media (max-width: 980px) {
+				.header-wrap {
+					flex-direction: column;
+					gap: 1rem;
+					padding: 1rem 0;
+				}
+				.header-right {
+					gap: 1.5rem;
+					flex-direction: column;
+				}
+			}
+		</style>
+
+		<script>
+			function setupReveal() {
+				const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+				const observer = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('visible');
+							observer.unobserve(entry.target);
+						}
+					});
+				}, observerOptions);
+
+				document.querySelectorAll('section, .reveal, .project-card, .writing-row').forEach((el) => {
+					el.classList.add('reveal');
+					observer.observe(el);
+				});
+			}
+
+			document.addEventListener('astro:page-load', setupReveal);
+		</script>
 	</body>
 </html>

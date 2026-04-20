@@ -17,21 +17,26 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="theme-color" content="#ffffff" />
-<meta name="color-scheme" content="light" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
-<link
-	rel="alternate"
-	type="application/rss+xml"
-	title={SITE_TITLE}
-	href={new URL('rss.xml', Astro.site)}
-/>
-<meta name="generator" content={Astro.generator} />
-<link rel="canonical" href={canonicalURL} />
-<title>{title}</title>
-<meta name="title" content={title} />
-<meta name="description" content={description} />
+
+<script is:inline>
+	const setTheme = () => {
+		const theme = (() => {
+			if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+				return localStorage.getItem('theme');
+			}
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				return 'dark';
+			}
+			return 'light';
+		})();
+		document.documentElement.dataset.theme = theme;
+	};
+
+	setTheme();
+	document.addEventListener('astro:after-swap', setTheme);
+</script>
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />

@@ -1,10 +1,9 @@
 ---
-title: '1. 部署方式'
-description: '最终建议工作目录：'
+title: '在VPS上部署tg自动签到'
+description: '通过docker部署tg签到脚本'
 pubDate: '2026-04-25'
 featured: false
 ---
-# 1. 部署方式
 
 ## 目录结构
 
@@ -108,8 +107,6 @@ docker ps
 ```
 
 ---
-# 4. 常用维护命令
-
 ## 查看日志
 
 ```bash
@@ -157,9 +154,6 @@ docker run -d \
 ```
 
 ---
-
-# 5. 注意事项
-
 ## 不要创建空 session 文件
 
 不要执行：

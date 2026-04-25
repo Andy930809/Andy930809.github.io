@@ -4,6 +4,7 @@ description: '启用的是 WiFi Calling / VoWiFi，搭配台哥大的 IP 简讯 
 pubDate: '2026-04-25'
 featured: false
 ---
+
 ## 1. 实现原理
 
 启用的是 **Wi-Fi Calling / VoWiFi**，搭配台哥大的 **IP 简讯 IP SMS**。

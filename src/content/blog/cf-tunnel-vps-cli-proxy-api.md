@@ -1,9 +1,10 @@
 ---
 title: '通过CF-Tunnel在VPS部署Cli-Proxy-Api'
-description: '管理域名： https://managementcpa.example.com/management.html'
+description: '在自己的vps上相对安全的部署CPA'
 pubDate: '2026-04-25'
 featured: false
 ---
+
 ## 1. 整体架构
 
 ```text

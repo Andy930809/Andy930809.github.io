@@ -15,27 +15,38 @@ const DATE_LOCALES: Record<SiteLang, string> = {
 	en: 'en-US',
 };
 
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export function isSiteLang(value: string): value is SiteLang {
 	return SUPPORTED_LANGS.includes(value as SiteLang);
+}
+
+export function withBasePath(path: string): string {
+	const normalized = path.startsWith('/') ? path : `/${path}`;
+	return BASE_PATH ? `${BASE_PATH}${normalized}` : normalized;
 }
 
 export function createLocalizedPath(lang: SiteLang, path: string): string {
 	const normalized = path.startsWith('/') ? path : `/${path}`;
 	const trimmed = normalized.replace(/^\/+|\/+$/g, '');
-	return trimmed ? `/${lang}/${trimmed}/` : `/${lang}/`;
+	const localizedPath = trimmed ? `/${lang}/${trimmed}/` : `/${lang}/`;
+	return withBasePath(localizedPath);
 }
 
 export function switchLanguagePath(pathname: string, targetLang: SiteLang): string {
-	const segments = pathname.split('/').filter(Boolean);
+	const localizedPath = BASE_PATH && pathname.startsWith(BASE_PATH)
+		? pathname.slice(BASE_PATH.length) || '/'
+		: pathname;
+	const segments = localizedPath.split('/').filter(Boolean);
 	if (segments.length === 0) {
-		return `/${targetLang}/`;
+		return createLocalizedPath(targetLang, '/');
 	}
 	if (isSiteLang(segments[0])) {
 		segments[0] = targetLang;
 	} else {
 		segments.unshift(targetLang);
 	}
-	return `/${segments.join('/')}/`;
+	return withBasePath(`/${segments.join('/')}/`);
 }
 
 export function formatDateByLang(value: Date, lang: SiteLang): string {

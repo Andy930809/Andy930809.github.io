@@ -297,7 +297,7 @@ export const SITE_COPY: Record<SiteLang, SiteContent> = {
 		},
 		blog: {
 			title: '博客',
-			intro: '目前先放一篇《思考，快与慢》的读书心得，后面再继续补项目文章。',
+			intro: '这里会持续整理项目实践、部署记录和一些技术笔记。',
 			categories: ['读书', '项目', '前端'],
 			empty: '暂时还没有文章。',
 			readMore: '阅读全文',
@@ -351,7 +351,7 @@ export const SITE_COPY: Record<SiteLang, SiteContent> = {
 		},
 		blog: {
 			title: '博客',
-			intro: '目前先放一篇《思考，快與慢》的讀書心得，後面再繼續補項目文章。',
+			intro: '這裡會持續整理項目實踐、部署記錄與一些技術筆記。',
 			categories: ['讀書', '項目', '前端'],
 			empty: '暫時還沒有文章。',
 			readMore: '閱讀全文',
@@ -405,7 +405,7 @@ export const SITE_COPY: Record<SiteLang, SiteContent> = {
 		},
 		blog: {
 			title: 'Blog',
-			intro: 'For now, the blog starts with a reading note on Thinking, Fast and Slow.',
+			intro: 'This section collects project notes, deployment write-ups, and practical technical posts.',
 			categories: ['Reading', 'Projects', 'Frontend'],
 			empty: 'No posts yet.',
 			readMore: 'Read the post',

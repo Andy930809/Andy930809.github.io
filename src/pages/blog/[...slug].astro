@@ -1,5 +1,5 @@
 ---
-import { DEFAULT_LANG } from '../../i18n/config';
+import { DEFAULT_LANG, createLocalizedPath } from '../../i18n/config';
 import { getSortedPosts } from '../../lib/blog';
 
 export async function getStaticPaths() {
@@ -10,5 +10,5 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-return Astro.redirect(`/${DEFAULT_LANG}/blog/${slug}/`);
+return Astro.redirect(createLocalizedPath(DEFAULT_LANG, `/blog/${slug}`));
 ---

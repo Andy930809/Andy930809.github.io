@@ -287,6 +287,45 @@ img {
 	gap: 0.35rem;
 }
 
+.post-content table {
+	width: 100%;
+	display: block;
+	overflow-x: auto;
+	border-collapse: collapse;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-md);
+	background: var(--surface);
+}
+
+.post-content thead {
+	background: var(--surface-soft);
+}
+
+.post-content th,
+.post-content td {
+	padding: 0.78rem 0.95rem;
+	border-bottom: 1px solid var(--line);
+	text-align: left;
+	vertical-align: top;
+}
+
+.post-content th {
+	font-weight: 600;
+	color: var(--text-strong);
+	white-space: nowrap;
+}
+
+.post-content tr:last-child td {
+	border-bottom: none;
+}
+
+.post-content td code,
+.post-content th code {
+	white-space: normal;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
 .post-content blockquote {
 	margin: 0;
 	padding: 0.9rem 1rem;

@@ -160,7 +160,12 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 
 		<script>
 			function setupReveal() {
-				const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+				const observerOptions = { threshold: 0, rootMargin: '0px 0px -50px 0px' };
+				const isInViewport = (element) => {
+					const rect = element.getBoundingClientRect();
+					return rect.bottom > 0 && rect.top < window.innerHeight;
+				};
+
 				const observer = new IntersectionObserver((entries) => {
 					entries.forEach((entry) => {
 						if (entry.isIntersecting) {
@@ -172,6 +177,12 @@ const languageLinks = SUPPORTED_LANGS.map((targetLang) => ({
 
 				document.querySelectorAll('section, .reveal, .project-card, .writing-row').forEach((el) => {
 					el.classList.add('reveal');
+
+					if (isInViewport(el)) {
+						el.classList.add('visible');
+						return;
+					}
+
 					observer.observe(el);
 				});
 			}

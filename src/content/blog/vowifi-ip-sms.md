@@ -1,7 +1,7 @@
 ---
 title: 'VoWiFi+IP简讯替代国际漫游方案（适用于境外收 SMS）'
 description: '启用的是 WiFi Calling / VoWiFi，搭配台哥大的 IP 简讯 IP SMS。'
-pubDate: '2026-04-25'
+pubDate: '2026-03-16'
 featured: false
 ---
 

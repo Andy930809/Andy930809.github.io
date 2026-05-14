@@ -1,34 +1,30 @@
 ---
-import type { ProjectItem, ProjectStatus } from '../i18n/copy';
-import type { SiteLang } from '../i18n/config';
+import type { ProjectItem } from '../i18n/copy';
 
 interface Props {
 	project: ProjectItem;
-	lang: SiteLang;
-	statusCopy: Record<ProjectStatus, string>;
 	labels: {
-		sourceLabel: string;
 		highlightsLabel: string;
-		openSourceLabel: string;
-		draftHint: string;
+		stackLabel: string;
 	};
 	isFeatured?: boolean;
 }
 
-const { project, statusCopy, labels, isFeatured = false } = Astro.props;
+const { project, labels, isFeatured = false } = Astro.props;
 ---
 
 <article class:list={['project-card', { 'is-featured': isFeatured }]} data-project-card>
 	<div class="card-glow" data-glow></div>
+	{
+		project.image && (
+			<div class="project-cover-wrap">
+				<img class="project-cover" src={project.image} alt={project.title} loading="lazy" />
+			</div>
+		)
+	}
 	<div class="card-content">
 		<div class="card-header">
-			<div class="title-area">
-				{isFeatured && <span class="featured-badge">Featured Project</span>}
-				<h3 class="project-title">{project.title}</h3>
-			</div>
-			<span class:list={['status-pill', `is-${project.status}`]}>
-				{statusCopy[project.status]}
-			</span>
+			<h3 class="project-title">{project.title}</h3>
 		</div>
 
 		<p class="project-summary">{project.summary}</p>
@@ -36,7 +32,7 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 		{
 			project.highlights && project.highlights.length > 0 && (
 				<div class="project-highlights">
-					<p class="highlights-title">{labels.highlightsLabel}</p>
+					<p class="section-title">{labels.highlightsLabel}</p>
 					<ul>
 						{project.highlights.map((item) => (
 							<li>{item}</li>
@@ -46,30 +42,10 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 			)
 		}
 
-		<div class="project-result-box">
-			<p class="project-result">{project.result}</p>
-		</div>
-
-		<div class="chip-list">
-			{project.stack.map((tag) => <span>{tag}</span>)}
-		</div>
-
-		<div class="card-footer">
-			<div class="source-info">
-				<span class="label">{labels.sourceLabel}</span>
-				<code class="source-ref">{project.sourceRef}</code>
-			</div>
-			<div class="cta-area">
-				{
-					project.link ? (
-						<a class="inline-link action-link" href={project.link} target="_blank" rel="noopener noreferrer">
-							{labels.openSourceLabel}
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-						</a>
-					) : (
-						<span class="draft-hint">{labels.draftHint}</span>
-					)
-				}
+		<div class="project-stack">
+			<p class="section-title">{labels.stackLabel}</p>
+			<div class="chip-list">
+				{project.stack.map((tag) => <span>{tag}</span>)}
 			</div>
 		</div>
 	</div>
@@ -140,12 +116,28 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 		opacity: 1;
 	}
 
+	.project-cover-wrap {
+		position: relative;
+		z-index: 2;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--surface-soft);
+		border-bottom: 1px solid var(--line);
+	}
+
+	.project-cover {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
 	.card-content {
 		position: relative;
 		z-index: 2;
 		display: flex;
 		flex-direction: column;
-		gap: 1.15rem;
+		gap: 1rem;
 		padding: 1.5rem;
 		height: 100%;
 	}
@@ -172,44 +164,15 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 		gap: 0.4rem;
 	}
 
-	.featured-badge {
-		font-size: 0.7rem;
-		font-weight: 800;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--text-subtle);
-	}
-
 	.project-title {
 		font-size: 1.35rem;
 		line-height: 1.2;
 		color: var(--text-strong);
+		margin: 0;
 	}
 
 	.is-featured .project-title {
 		font-size: clamp(1.6rem, 3vw, 2.2rem);
-	}
-
-	.status-pill {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.2rem 0.6rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		border: 1px solid var(--line);
-		white-space: nowrap;
-	}
-
-	.status-pill.is-published {
-		border-color: #bdcdf7;
-		background: #edf2ff;
-		color: #2f4b9e;
-	}
-
-	.status-pill.is-draft {
-		background: var(--surface-soft);
-		color: var(--text-subtle);
 	}
 
 	.project-summary {
@@ -222,12 +185,14 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 	.project-highlights {
 		display: grid;
 		gap: 0.5rem;
-		padding: 0.85rem;
+		padding: 0.9rem 1rem;
 		background: rgba(0, 0, 0, 0.02);
 		border-radius: 12px;
+		border: 1px solid var(--line);
 	}
 
-	.highlights-title {
+	.section-title {
+		margin: 0;
 		font-size: 0.72rem;
 		font-weight: 700;
 		text-transform: uppercase;
@@ -244,16 +209,9 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 		color: var(--text-strong);
 	}
 
-	.project-result-box {
-		padding-left: 0.85rem;
-		border-left: 2px solid var(--line-strong);
-	}
-
-	.project-result {
-		margin: 0;
-		font-size: 0.95rem;
-		font-weight: 500;
-		color: var(--text-strong);
+	.project-stack {
+		display: grid;
+		gap: 0.55rem;
 	}
 
 	.chip-list {
@@ -269,65 +227,5 @@ const { project, statusCopy, labels, isFeatured = false } = Astro.props;
 		border: 1px solid var(--line);
 		border-radius: 6px;
 		color: var(--text-subtle);
-	}
-
-	.card-footer {
-		margin-top: auto;
-		padding-top: 1rem;
-		border-top: 1px solid var(--line);
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-
-	.source-info {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.8rem;
-	}
-
-	.source-info .label {
-		color: var(--text-subtle);
-	}
-
-	.source-ref {
-		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-		padding: 0.1rem 0.4rem;
-		background: var(--surface-soft);
-		border-radius: 4px;
-		color: var(--text-strong);
-	}
-
-	.action-link {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		font-size: 0.9rem;
-		font-weight: 650;
-	}
-
-	.action-link:hover {
-		color: var(--text);
-	}
-
-	.draft-hint {
-		font-size: 0.85rem;
-		color: var(--text-subtle);
-		font-style: italic;
-	}
-
-	@media (max-width: 640px) {
-		.card-header {
-			flex-direction: column;
-			align-items: flex-start;
-		}
-		
-		.card-footer {
-			flex-direction: column;
-			align-items: flex-start;
-		}
 	}
 </style>

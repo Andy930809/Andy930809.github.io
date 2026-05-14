@@ -13,21 +13,21 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as SiteLang;
 const copy = getSiteCopy(lang);
 
-// 技术雷达数据定义
+// Tech radar data
 const radarData = [
 	{
 		label: 'Adopt',
-		items: ['Astro', 'TypeScript', 'Python', 'Tailwind', 'React'],
+		items: ['Python', 'TypeScript', 'LLM Agents', 'Cpp', 'Codex'],
 		color: 'var(--accent)',
 	},
 	{
 		label: 'Trial',
-		items: ['Rust', 'MCP', 'LLM Agents', 'Go', 'Next.js'],
+		items: ['MCP', 'Skills', 'RAG', 'Context Engineering', 'Workflow'],
 		color: '#10b981',
 	},
 	{
 		label: 'Assess',
-		items: ['Zig', 'WebAssembly', 'Bun', 'Svelte'],
+		items: ['《思考快与慢》', '《原子习惯》', '《长日将尽》', '《如何阅读一本书》'],
 		color: '#f59e0b',
 	},
 ];

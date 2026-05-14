@@ -1,7 +1,7 @@
 ---
 title: '通过CF-Tunnel在VPS部署Cli-Proxy-Api'
 description: '在自己的vps上相对安全的部署CPA'
-pubDate: '2026-04-25'
+pubDate: '2025-12-25'
 featured: false
 ---
 

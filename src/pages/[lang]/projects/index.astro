@@ -27,13 +27,9 @@ const projects = copy.projects;
 			projects.map((project) => (
 				<ProjectCard 
 					project={project} 
-					lang={lang} 
-					statusCopy={copy.projectBoard.status}
 					labels={{
-						sourceLabel: copy.projectBoard.sourceLabel,
 						highlightsLabel: copy.projectBoard.highlightsLabel,
-						openSourceLabel: copy.projectBoard.openSourceLabel,
-						draftHint: copy.projectBoard.draftHint
+						stackLabel: copy.projectBoard.stackLabel
 					}}
 				/>
 			))

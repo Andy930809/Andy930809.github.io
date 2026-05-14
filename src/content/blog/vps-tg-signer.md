@@ -1,7 +1,7 @@
 ---
 title: '在VPS上部署tg自动签到'
 description: '通过docker部署tg签到脚本'
-pubDate: '2026-04-25'
+pubDate: '2026-01-03'
 featured: false
 ---
 
